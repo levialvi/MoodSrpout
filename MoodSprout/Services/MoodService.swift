@@ -99,6 +99,29 @@ final class MoodService: ObservableObject {
         }
     }
     
+    /// Updates an existing custom mood with notes
+    func updateCustomMoodWithNotes(customMoodId: UUID, notes: String?) {
+        let today = Calendar.current.startOfDay(for: Date())
+        
+        // Find the existing mood entry for today
+        if let index = moods.firstIndex(where: { Calendar.current.isDate($0.date, inSameDayAs: today) }) {
+            // Update the existing entry with notes
+            let updatedEntry = MoodEntry(id: moods[index].id, customMoodId: customMoodId, notes: notes, date: today)
+            moods[index] = updatedEntry
+            storageService.save(moods)
+            
+            // Sync to Supabase
+            Task {
+                do {
+                    try await supabaseService.updateMood(updatedEntry)
+                    print("✅ Custom mood updated with notes in Supabase successfully")
+                } catch {
+                    print("❌ Failed to update custom mood in Supabase: \(error)")
+                }
+            }
+        }
+    }
+    
     /// Deletes a mood entry
     func deleteMood(at offsets: IndexSet) {
         let deletedMoods = offsets.map { moods[$0] }

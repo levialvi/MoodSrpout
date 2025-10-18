@@ -83,40 +83,48 @@ struct ContentView: View {
 struct TodayView: View {
     @StateObject private var moodService = MoodService.shared
     @StateObject private var imageService = ImageService.shared
+    @State private var showNotesEditor = false
     
     var body: some View {
         VStack {
             if let todayMood = moodService.getTodaysMood() {
                 VStack(spacing: 20) {
-                    // Display mood icon/emoji
-                    if let customMoodId = todayMood.customMoodId,
-                       let customMood = moodService.getCustomMood(by: customMoodId) {
-                        // Custom mood display
-                        if let data = customMood.imageData, let uiImage = UIImage(data: data) {
-                            Image(uiImage: uiImage)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 120, height: 120)
-                                .clipShape(Circle())
-                        } else {
-                            Text(customMood.emoji)
-                                .font(.system(size: 80))
-                                .frame(width: 120, height: 120)
-                                .background(
-                                    Circle()
-                                        .fill(Color(hex: customMood.color).opacity(0.2))
-                                )
+                    // Display mood icon/emoji - make it clickable
+                    Button {
+                        showNotesEditor = true
+                    } label: {
+                        if let customMoodId = todayMood.customMoodId,
+                           let customMood = moodService.getCustomMood(by: customMoodId) {
+                            // Custom mood display
+                            if let data = customMood.imageData, let uiImage = UIImage(data: data) {
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 120, height: 120)
+                                    .clipShape(Circle())
+                            } else {
+                                Text(customMood.emoji)
+                                    .font(.system(size: 80))
+                                    .frame(width: 120, height: 120)
+                                    .background(
+                                        Circle()
+                                            .fill(Color(hex: customMood.color).opacity(0.2))
+                                    )
+                            }
+                        } else if let moodType = todayMood.moodType {
+                            // Predefined mood display
+                            SupabaseImageView(
+                                imageName: moodType.imageName,
+                                fallbackSystemImage: "face.smiling",
+                                imageData: imageService.getImageData(for: moodType)
+                            )
+                            .frame(width: 120, height: 120)
+                            .clipShape(Circle())
                         }
-                    } else if let moodType = todayMood.moodType {
-                        // Predefined mood display
-                        SupabaseImageView(
-                            imageName: moodType.imageName,
-                            fallbackSystemImage: "face.smiling",
-                            imageData: imageService.getImageData(for: moodType)
-                        )
-                        .frame(width: 120, height: 120)
-                        .clipShape(Circle())
                     }
+                    .buttonStyle(.plain)
+                    .scaleEffect(1.0)
+                    .animation(.easeInOut(duration: 0.1), value: showNotesEditor)
                     
                     Text("Today you're feeling")
                         .font(.title2)
@@ -135,15 +143,38 @@ struct TodayView: View {
                             .fontWeight(.bold)
                     }
                     
-                    if let notes = todayMood.notes, !notes.isEmpty {
-                        Text(notes)
-                            .font(.body)
-                            .foregroundStyle(.secondary)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal)
+                    // Notes section - always show, even if empty
+                    VStack(spacing: 8) {
+                        if let notes = todayMood.notes, !notes.isEmpty {
+                            Text(notes)
+                                .font(.body)
+                                .foregroundStyle(.secondary)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal)
+                        } else {
+                            Text("Tap the mood above to add notes")
+                                .font(.caption)
+                                .foregroundStyle(.tertiary)
+                                .italic()
+                        }
                     }
+                    .padding(.horizontal)
                 }
                 .padding()
+                .sheet(isPresented: $showNotesEditor) {
+                    NotesEditorView(
+                        currentNotes: todayMood.notes,
+                        moodType: todayMood.moodType,
+                        customMoodId: todayMood.customMoodId,
+                        onSave: { notes in
+                            if let moodType = todayMood.moodType {
+                                moodService.updateMoodWithNotes(moodType: moodType, notes: notes)
+                            } else if let customMoodId = todayMood.customMoodId {
+                                moodService.updateCustomMoodWithNotes(customMoodId: customMoodId, notes: notes)
+                            }
+                        }
+                    )
+                }
             } else {
                 ContentUnavailableView(
                     "No mood logged today",
