@@ -9,35 +9,52 @@ import SwiftUI
 
 // MARK: - Plant Theme Colors
 extension Color {
-    init(hex: String) {
-        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-        var int: UInt64 = 0
-        Scanner(string: hex).scanHexInt64(&int)
-        let a, r, g, b: UInt64
-        switch hex.count {
-        case 3: // RGB (12-bit)
-            (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
-        case 6: // RGB (24-bit)
-            (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
-        case 8: // ARGB (32-bit)
-            (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
-        default:
-            (a, r, g, b) = (1, 1, 1, 0)
-        }
-
-        self.init(
-            .sRGB,
-            red: Double(r) / 255,
-            green: Double(g) / 255,
-            blue:  Double(b) / 255,
-            opacity: Double(a) / 255
-        )
-    }
-    
+    // Primary plant colors
     static let plantGreen = Color(hex: "4CAF50")
     static let plantGreenLight = Color(hex: "81C784")
+    static let plantGreenDark = Color(hex: "388E3C")
+    
+    // Complementary colors for gradients
+    static let plantMint = Color(hex: "A5D6A7")
+    static let plantSage = Color(hex: "C8E6C9")
+    static let plantCream = Color(hex: "F1F8E9")
+    static let plantLime = Color(hex: "DCEDC8")
+    
+    // Background colors
     static let plantBackground = Color(hex: "F8F9FA")
     static let plantSurface = Color(hex: "FFFFFF")
+    
+    // Accent colors
+    static let plantTeal = Color(hex: "4DB6AC")
+    static let plantEmerald = Color(hex: "66BB6A")
+    static let plantForest = Color(hex: "2E7D32")
+}
+
+// MARK: - Plant Theme Gradients
+extension LinearGradient {
+    static let plantGradient = LinearGradient(
+        colors: [.plantGreen, .plantGreenLight, .plantMint],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+    
+    static let plantSoftGradient = LinearGradient(
+        colors: [.plantCream, .plantLime, .plantSage],
+        startPoint: .top,
+        endPoint: .bottom
+    )
+    
+    static let plantAccentGradient = LinearGradient(
+        colors: [.plantTeal, .plantEmerald, .plantGreen],
+        startPoint: .leading,
+        endPoint: .trailing
+    )
+    
+    static let plantBackgroundGradient = LinearGradient(
+        colors: [.plantBackground, .plantCream, .plantLime.opacity(0.3)],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
 }
 
 // MARK: - Plant Theme Typography
@@ -74,8 +91,8 @@ struct ContentView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                Color.plantBackground.ignoresSafeArea()
+        ZStack {
+            LinearGradient.plantBackgroundGradient.ignoresSafeArea()
                 
                 TabView(selection: $selectedTab) {
                     // Today's Mood
@@ -152,7 +169,10 @@ struct TodayView: View {
     @State private var showNotesEditor = false
     
     var body: some View {
-        ScrollView {
+        ZStack {
+            LinearGradient.plantSoftGradient.ignoresSafeArea()
+            
+            ScrollView {
             VStack(spacing: PlantSpacing.xl) {
                 if let todayMood = moodService.getTodaysMood() {
                     // Main mood card
@@ -211,7 +231,7 @@ struct TodayView: View {
                                     .clipShape(Circle())
                                     .overlay(
                                         Circle()
-                                            .stroke(.plantGreen.opacity(0.3), lineWidth: 4)
+                                            .stroke(Color.plantGreen.opacity(0.3), lineWidth: 4)
                                     )
                                 }
                             }
@@ -235,7 +255,7 @@ struct TodayView: View {
                                     Text(moodType.displayName)
                                         .font(.plantTitle)
                                         .fontWeight(.bold)
-                                        .foregroundStyle(.plantGreen)
+                                        .foregroundStyle(Color.plantGreen)
                                 }
                             }
                             
@@ -262,7 +282,7 @@ struct TodayView: View {
                                             .padding(PlantSpacing.md)
                                             .background(
                                                 RoundedRectangle(cornerRadius: PlantRadius.md)
-                                                    .fill(.plantBackground)
+                                                    .fill(Color.plantBackground)
                                             )
                                     }
                                 } else {
@@ -278,10 +298,10 @@ struct TodayView: View {
                                     .padding(PlantSpacing.md)
                                     .background(
                                         RoundedRectangle(cornerRadius: PlantRadius.md)
-                                            .fill(.plantBackground)
+                                            .fill(Color.plantBackground)
                                             .overlay(
                                                 RoundedRectangle(cornerRadius: PlantRadius.md)
-                                                    .stroke(.plantGreen.opacity(0.2), lineWidth: 1, lineCap: .round, dash: [5])
+                                                    .stroke(Color.plantGreen.opacity(0.2), lineWidth: 1)
                                             )
                                     )
                                 }
@@ -291,7 +311,7 @@ struct TodayView: View {
                     .padding(PlantSpacing.lg)
                     .background(
                         RoundedRectangle(cornerRadius: PlantRadius.lg)
-                            .fill(.plantSurface)
+                            .fill(LinearGradient.plantSoftGradient)
                             .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
                     )
                     .padding(.horizontal, PlantSpacing.md)
@@ -324,7 +344,7 @@ struct TodayView: View {
                         .padding(.vertical, PlantSpacing.md)
                         .background(
                             RoundedRectangle(cornerRadius: PlantRadius.md)
-                                .fill(.plantGreen)
+                                .fill(Color.plantGreen)
                         )
                         .padding(.horizontal, PlantSpacing.xl)
                     }
@@ -350,6 +370,7 @@ struct TodayView: View {
                 )
             }
         }
+        }
     }
 }
 
@@ -360,15 +381,17 @@ struct HistoryView: View {
     
     var body: some View {
         ScrollView {
-            VStack(spacing: PlantSpacing.md) {
+            VStack(spacing: 16) {
                 if moodService.moods.isEmpty {
-                    VStack(spacing: PlantSpacing.lg) {
-                        PlantIcon("leaf", size: 80, color: .plantGreen.opacity(0.3))
+                    VStack(spacing: 24) {
+                        Image(systemName: "leaf")
+                            .font(.system(size: 80))
+                            .foregroundColor(Color.plantGreen.opacity(0.3))
                         
-                        VStack(spacing: PlantSpacing.md) {
+                        VStack(spacing: 16) {
                             Text("No moods yet")
                                 .font(.plantHeadline)
-                                .foregroundColor(.plantGreen)
+                                .foregroundColor(Color.plantGreen)
                             
                             Text("Your mood history will appear here")
                                 .font(.plantBody)
@@ -376,103 +399,144 @@ struct HistoryView: View {
                                 .multilineTextAlignment(.center)
                         }
                     }
-                    .padding(PlantSpacing.xl)
+                    .padding(32)
                 } else {
-                    LazyVStack(spacing: PlantSpacing.md) {
+                    LazyVStack(spacing: 16) {
                         ForEach(moodService.moods) { entry in
-                            PlantCard {
-                                HStack(spacing: PlantSpacing.md) {
-                                    // Mood icon/emoji
-                                    if let customMoodId = entry.customMoodId,
-                                       let customMood = moodService.getCustomMood(by: customMoodId) {
-                                        // Custom mood display
-                                        if let data = customMood.imageData, let uiImage = UIImage(data: data) {
-                                            Image(uiImage: uiImage)
-                                                .resizable()
-                                                .scaledToFill()
-                                                .frame(width: 60, height: 60)
-                                                .clipShape(Circle())
-                                                .overlay(
-                                                    Circle()
-                                                        .stroke(Color(hex: customMood.color).opacity(0.3), lineWidth: 2)
-                                                )
-                                        } else {
-                                            Text(customMood.emoji)
-                                                .font(.system(size: 32))
-                                                .frame(width: 60, height: 60)
-                                                .background(
-                                                    Circle()
-                                                        .fill(Color(hex: customMood.color).opacity(0.15))
-                                                        .overlay(
-                                                            Circle()
-                                                                .stroke(Color(hex: customMood.color).opacity(0.3), lineWidth: 2)
-                                                        )
-                                                )
-                                        }
-                                    } else if let moodType = entry.moodType {
-                                        // Predefined mood display
-                                        SupabaseImageView(
-                                            imageName: moodType.imageName,
-                                            fallbackSystemImage: "face.smiling",
-                                            imageData: imageService.getImageData(for: moodType)
-                                        )
-                                        .frame(width: 60, height: 60)
-                                        .clipShape(Circle())
-                                        .overlay(
-                                            Circle()
-                                                .stroke(.plantGreen.opacity(0.3), lineWidth: 2)
-                                        )
-                                    }
-                                    
-                                    // Mood details
-                                    VStack(alignment: .leading, spacing: PlantSpacing.sm) {
-                                        HStack {
-                                            // Mood name
-                                            if let customMoodId = entry.customMoodId,
-                                               let customMood = moodService.getCustomMood(by: customMoodId) {
-                                                Text(customMood.name)
-                                                    .font(.plantSubheadline)
-                                                    .fontWeight(.semibold)
-                                                    .foregroundStyle(Color(hex: customMood.color))
-                                            } else if let moodType = entry.moodType {
-                                                Text(moodType.displayName)
-                                                    .font(.plantSubheadline)
-                                                    .fontWeight(.semibold)
-                                                    .foregroundStyle(.plantGreen)
-                                            }
-                                            
-                                            Spacer()
-                                            
-                                            // Date
-                                            Text(entry.date.formatted(date: .abbreviated, time: .omitted))
-                                                .font(.plantSmall)
-                                                .foregroundStyle(.secondary)
-                                        }
-                                        
-                                        // Notes
-                                        if let notes = entry.notes, !notes.isEmpty {
-                                            HStack(alignment: .top, spacing: PlantSpacing.sm) {
-                                                PlantIcon("note.text", size: 14, color: .plantGreen.opacity(0.7))
-                                                Text(notes)
-                                                    .font(.plantCaption)
-                                                    .foregroundStyle(.secondary)
-                                                    .lineLimit(2)
-                                                Spacer()
-                                            }
-                                        }
-                                    }
-                                    
-                                    Spacer()
-                                }
-                            }
+                            MoodEntryView(entry: entry, moodService: moodService, imageService: imageService)
                         }
                     }
-                    .padding(.horizontal, PlantSpacing.md)
+                    .padding(.horizontal, 16)
                 }
             }
-            .padding(.top, PlantSpacing.md)
+            .padding(.top, 16)
         }
         .background(Color.clear)
+    }
+}
+
+// MARK: - Mood Entry View
+struct MoodEntryView: View {
+    let entry: MoodEntry
+    let moodService: MoodService
+    let imageService: ImageService
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 16) {
+                // Mood icon/emoji
+                MoodIconView(entry: entry, moodService: moodService, imageService: imageService)
+                
+                // Mood details
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        // Mood name
+                        Text(moodName)
+                            .font(.plantSubheadline)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(moodColor)
+                        
+                        Spacer()
+                        
+                        // Date
+                        Text(entry.date.formatted(date: .abbreviated, time: .omitted))
+                            .font(.plantCaption)
+                            .foregroundStyle(.secondary)
+                    }
+                    
+                    // Notes
+                    if let notes = entry.notes, !notes.isEmpty {
+                        HStack(alignment: .top, spacing: 8) {
+                            Image(systemName: "note.text")
+                                .font(.system(size: 14))
+                                .foregroundColor(Color.plantGreen.opacity(0.7))
+                            Text(notes)
+                                .font(.plantCaption)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(2)
+                            Spacer()
+                        }
+                    }
+                }
+                
+                Spacer()
+            }
+        }
+        .padding(24)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(LinearGradient.plantSoftGradient)
+                .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
+        )
+    }
+    
+    private var moodName: String {
+        if let customMoodId = entry.customMoodId,
+           let customMood = moodService.getCustomMood(by: customMoodId) {
+            return customMood.name
+        } else if let moodType = entry.moodType {
+            return moodType.displayName
+        }
+        return "Unknown"
+    }
+    
+    private var moodColor: Color {
+        if let customMoodId = entry.customMoodId,
+           let customMood = moodService.getCustomMood(by: customMoodId) {
+            return Color(hex: customMood.color)
+        } else {
+            return Color.plantGreen
+        }
+    }
+}
+
+// MARK: - Mood Icon View
+struct MoodIconView: View {
+    let entry: MoodEntry
+    let moodService: MoodService
+    let imageService: ImageService
+    
+    var body: some View {
+        if let customMoodId = entry.customMoodId,
+           let customMood = moodService.getCustomMood(by: customMoodId) {
+            // Custom mood display
+            if let data = customMood.imageData, let uiImage = UIImage(data: data) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 60, height: 60)
+                    .clipShape(Circle())
+                    .overlay(
+                        Circle()
+                            .stroke(Color(hex: customMood.color).opacity(0.3), lineWidth: 2)
+                    )
+            } else {
+                Text(customMood.emoji)
+                    .font(.system(size: 32))
+                    .frame(width: 60, height: 60)
+                    .background(
+                        Circle()
+                            .fill(Color(hex: customMood.color).opacity(0.15))
+                            .overlay(
+                                Circle()
+                                    .stroke(Color(hex: customMood.color).opacity(0.3), lineWidth: 2)
+                            )
+                    )
+            }
+        } else if let moodType = entry.moodType {
+            // Predefined mood display
+            SupabaseImageView(
+                imageName: moodType.imageName,
+                fallbackSystemImage: "face.smiling",
+                imageData: imageService.getImageData(for: moodType)
+            )
+            .frame(width: 60, height: 60)
+            .clipShape(Circle())
+            .overlay(
+                Circle()
+                    .stroke(Color.plantGreen.opacity(0.3), lineWidth: 2)
+            )
+        }
     }
 }
 

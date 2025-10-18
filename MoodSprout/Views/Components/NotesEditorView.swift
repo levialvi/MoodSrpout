@@ -20,7 +20,7 @@ struct NotesEditorView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.plantBackground.ignoresSafeArea()
+                LinearGradient.plantSoftGradient.ignoresSafeArea()
                 
                 VStack(spacing: 32) {
                     // Header with mood info
@@ -73,23 +73,23 @@ struct NotesEditorView: View {
                                     .frame(width: 80, height: 80)
                                     .background(
                                         Circle()
-                                            .fill(.plantGreen.opacity(0.15))
+                                            .fill(Color.plantGreen.opacity(0.15))
                                             .overlay(
                                                 Circle()
-                                                    .stroke(.plantGreen.opacity(0.3), lineWidth: 3)
+                                                    .stroke(Color.plantGreen.opacity(0.3), lineWidth: 3)
                                             )
                                     )
                                 Text("Add notes for \(moodType.displayName)")
                                     .font(.plantSubheadline)
                                     .fontWeight(.semibold)
-                                    .foregroundStyle(.plantGreen)
+                                    .foregroundStyle(Color.plantGreen)
                             }
                         }
                     }
                     .padding(24)
                     .background(
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(.plantSurface)
+                            .fill(LinearGradient.plantSoftGradient)
                             .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
                     )
                     
@@ -111,11 +111,11 @@ struct NotesEditorView: View {
                             .padding(16)
                             .background(
                                 RoundedRectangle(cornerRadius: 16)
-                                    .fill(.plantBackground)
+                                    .fill(Color.plantBackground)
                             )
                             .overlay(
                                 RoundedRectangle(cornerRadius: 16)
-                                    .stroke(.plantGreen.opacity(0.2), lineWidth: 1)
+                                    .stroke(Color.plantGreen.opacity(0.2), lineWidth: 1)
                             )
                             .font(.plantBody)
                     }
@@ -147,7 +147,7 @@ struct NotesEditorView: View {
                     .padding(.vertical, 8)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
-                            .fill(.plantGreen)
+                            .fill(Color.plantGreen)
                     )
                 }
             }

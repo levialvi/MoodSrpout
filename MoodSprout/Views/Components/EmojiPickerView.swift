@@ -27,13 +27,15 @@ struct MoodPickerView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                PlantBackground()
+                LinearGradient.plantBackgroundGradient.ignoresSafeArea()
                 
-                VStack(spacing: PlantSpacing.xl) {
+                VStack(spacing: 32) {
                     // Header section
-                    VStack(spacing: PlantSpacing.md) {
+                    VStack(spacing: 16) {
                         HStack {
-                            PlantIcon("leaf.fill", size: 32, color: .plantGreen)
+                            Image(systemName: "leaf.fill")
+                                .font(.system(size: 32))
+                                .foregroundColor(.plantGreen)
                             Text("How are you feeling today?")
                                 .font(.plantHeadline)
                                 .foregroundColor(.plantGreen)
@@ -44,11 +46,11 @@ struct MoodPickerView: View {
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.center)
                     }
-                    .padding(.top, PlantSpacing.lg)
+                    .padding(.top, 24)
                     
                     // Mood Grid
                     ScrollView {
-                        VStack(alignment: .leading, spacing: PlantSpacing.xl) {
+                        VStack(alignment: .leading, spacing: 32) {
                             // Predefined Moods Section
                             PredefinedMoodsSection(
                                 selectedMoodType: $selectedMoodType,
@@ -73,7 +75,7 @@ struct MoodPickerView: View {
                                 }
                             )
                         }
-                        .padding(.horizontal, PlantSpacing.md)
+                        .padding(.horizontal, 16)
                     }
                     
                     Spacer()
@@ -110,18 +112,20 @@ struct PredefinedMoodsSection: View {
     let columns: [GridItem]
     
     var body: some View {
-        VStack(alignment: .leading, spacing: PlantSpacing.lg) {
+        VStack(alignment: .leading, spacing: 24) {
             HStack {
-                PlantIcon("sparkles", size: 20, color: .plantGreen)
+                Image(systemName: "sparkles")
+                    .font(.system(size: 20))
+                    .foregroundColor(.plantGreen)
                 Text("Default Moods")
                     .font(.plantSubheadline)
                     .fontWeight(.semibold)
                     .foregroundColor(.plantGreen)
                 Spacer()
             }
-            .padding(.horizontal, PlantSpacing.md)
+            .padding(.horizontal, 16)
             
-            LazyVGrid(columns: columns, spacing: PlantSpacing.lg) {
+            LazyVGrid(columns: columns, spacing: 24) {
                 ForEach(MoodType.allCases, id: \.self) { mood in
                     PredefinedMoodButton(
                         mood: mood,
@@ -135,7 +139,7 @@ struct PredefinedMoodsSection: View {
                     )
                 }
             }
-            .padding(.horizontal, PlantSpacing.md)
+            .padding(.horizontal, 16)
         }
     }
 }
@@ -148,8 +152,10 @@ struct PredefinedMoodButton: View {
     var onTap: () -> Void
     
     var body: some View {
-        Button(action: onTap) {
-            VStack(spacing: PlantSpacing.sm) {
+        Button {
+            onTap()
+        } label: {
+            VStack(spacing: 8) {
                 SupabaseImageView(
                     imageName: mood.imageName,
                     fallbackSystemImage: "face.smiling",
@@ -158,10 +164,10 @@ struct PredefinedMoodButton: View {
                 .frame(width: 70, height: 70)
                 .background(
                     Circle()
-                        .fill(isSelected ? .plantGreen.opacity(0.15) : .plantBackground)
+                        .fill(isSelected ? Color.plantGreen.opacity(0.15) : Color.plantBackground)
                         .overlay(
                             Circle()
-                                .stroke(isSelected ? .plantGreen : .clear, lineWidth: 3)
+                                .stroke(isSelected ? Color.plantGreen : .clear, lineWidth: 3)
                         )
                 )
                 .scaleEffect(isSelected ? 1.1 : 1.0)
@@ -173,15 +179,15 @@ struct PredefinedMoodButton: View {
                     .foregroundColor(isSelected ? .plantGreen : .primary)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, PlantSpacing.md)
+            .padding(.vertical, 16)
             .background(
-                RoundedRectangle(cornerRadius: PlantRadius.lg)
-                    .fill(isSelected ? .plantGreen.opacity(0.1) : .plantSurface)
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(isSelected ? LinearGradient.plantAccentGradient : LinearGradient.plantSoftGradient)
                     .overlay(
-                        RoundedRectangle(cornerRadius: PlantRadius.lg)
-                            .stroke(isSelected ? .plantGreen : .plantGreen.opacity(0.2), lineWidth: isSelected ? 2 : 1)
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(isSelected ? Color.plantGreen : Color.plantGreen.opacity(0.2), lineWidth: isSelected ? 2 : 1)
                     )
-                    .shadow(color: isSelected ? .plantGreen.opacity(0.2) : .black.opacity(0.05), radius: isSelected ? 8 : 4, x: 0, y: isSelected ? 4 : 2)
+                    .shadow(color: isSelected ? Color.plantGreen.opacity(0.2) : .black.opacity(0.05), radius: isSelected ? 8 : 4, x: 0, y: isSelected ? 4 : 2)
             )
         }
         .buttonStyle(.plain)
@@ -200,18 +206,20 @@ struct CustomMoodsSection: View {
     
     var body: some View {
         if !customMoods.isEmpty {
-            VStack(alignment: .leading, spacing: PlantSpacing.lg) {
+            VStack(alignment: .leading, spacing: 24) {
                 HStack {
-                    PlantIcon("heart.fill", size: 20, color: .plantGreen)
+                    Image(systemName: "heart.fill")
+                        .font(.system(size: 20))
+                        .foregroundColor(.plantGreen)
                     Text("Your Custom Moods")
                         .font(.plantSubheadline)
                         .fontWeight(.semibold)
                         .foregroundColor(.plantGreen)
                     Spacer()
                 }
-                .padding(.horizontal, PlantSpacing.md)
+                .padding(.horizontal, 16)
                 
-                LazyVGrid(columns: columns, spacing: PlantSpacing.lg) {
+                LazyVGrid(columns: columns, spacing: 24) {
                     if currentCustomMoodCount < 10 {
                         AddCustomMoodTile(onTap: onTapAdd)
                     }
@@ -227,7 +235,7 @@ struct CustomMoodsSection: View {
                         )
                     }
                 }
-                .padding(.horizontal, PlantSpacing.md)
+                .padding(.horizontal, 16)
             }
         }
     }
@@ -240,8 +248,10 @@ struct CustomMoodButton: View {
     var onTap: () -> Void
     
     var body: some View {
-        Button(action: onTap) {
-            VStack(spacing: PlantSpacing.sm) {
+        Button {
+            onTap()
+        } label: {
+            VStack(spacing: 8) {
                 if let data = mood.imageData, let uiImage = UIImage(data: data) {
                     Image(uiImage: uiImage)
                         .resizable()
@@ -273,12 +283,12 @@ struct CustomMoodButton: View {
                     .lineLimit(1)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, PlantSpacing.md)
+            .padding(.vertical, 16)
             .background(
-                RoundedRectangle(cornerRadius: PlantRadius.lg)
-                    .fill(isSelected ? Color(hex: mood.color).opacity(0.1) : .plantSurface)
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(isSelected ? LinearGradient(colors: [Color(hex: mood.color).opacity(0.2), Color(hex: mood.color).opacity(0.1)], startPoint: .topLeading, endPoint: .bottomTrailing) : LinearGradient.plantSoftGradient)
                     .overlay(
-                        RoundedRectangle(cornerRadius: PlantRadius.lg)
+                        RoundedRectangle(cornerRadius: 16)
                             .stroke(isSelected ? Color(hex: mood.color) : Color(hex: mood.color).opacity(0.2), lineWidth: isSelected ? 2 : 1)
                     )
                     .shadow(color: isSelected ? Color(hex: mood.color).opacity(0.2) : .black.opacity(0.05), radius: isSelected ? 8 : 4, x: 0, y: isSelected ? 4 : 2)
@@ -295,16 +305,20 @@ struct AddCustomMoodTile: View {
     var onTap: () -> Void
     
     var body: some View {
-        Button(action: onTap) {
-            VStack(spacing: PlantSpacing.sm) {
-                PlantIcon("plus.circle.fill", size: 40, color: .plantGreen)
+        Button {
+            onTap()
+        } label: {
+            VStack(spacing: 8) {
+                Image(systemName: "plus.circle.fill")
+                    .font(.system(size: 40))
+                    .foregroundColor(.plantGreen)
                     .frame(width: 70, height: 70)
                     .background(
                         Circle()
-                            .fill(.plantGreen.opacity(0.1))
+                            .fill(Color.plantGreen.opacity(0.1))
                             .overlay(
                                 Circle()
-                                    .stroke(.plantGreen.opacity(0.3), lineWidth: 2)
+                                    .stroke(Color.plantGreen.opacity(0.3), lineWidth: 2)
                             )
                     )
                 Text("Add")
@@ -313,13 +327,13 @@ struct AddCustomMoodTile: View {
                     .foregroundColor(.plantGreen)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, PlantSpacing.md)
+            .padding(.vertical, 16)
             .background(
-                RoundedRectangle(cornerRadius: PlantRadius.lg)
-                    .fill(.plantGreen.opacity(0.05))
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(LinearGradient.plantSoftGradient)
                     .overlay(
-                        RoundedRectangle(cornerRadius: PlantRadius.lg)
-                            .stroke(.plantGreen.opacity(0.2), lineWidth: 1, lineCap: .round, dash: [5])
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.plantGreen.opacity(0.2), lineWidth: 1)
                     )
             )
         }
