@@ -92,13 +92,21 @@ struct TodayView: View {
                     if let customMoodId = todayMood.customMoodId,
                        let customMood = moodService.getCustomMood(by: customMoodId) {
                         // Custom mood display
-                        Text(customMood.emoji)
-                            .font(.system(size: 80))
-                            .frame(width: 120, height: 120)
-                            .background(
-                                Circle()
-                                    .fill(Color(hex: customMood.color).opacity(0.2))
-                            )
+                        if let data = customMood.imageData, let uiImage = UIImage(data: data) {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 120, height: 120)
+                                .clipShape(Circle())
+                        } else {
+                            Text(customMood.emoji)
+                                .font(.system(size: 80))
+                                .frame(width: 120, height: 120)
+                                .background(
+                                    Circle()
+                                        .fill(Color(hex: customMood.color).opacity(0.2))
+                                )
+                        }
                     } else if let moodType = todayMood.moodType {
                         // Predefined mood display
                         SupabaseImageView(
@@ -167,13 +175,21 @@ struct HistoryView: View {
                         if let customMoodId = entry.customMoodId,
                            let customMood = moodService.getCustomMood(by: customMoodId) {
                             // Custom mood display
-                            Text(customMood.emoji)
-                                .font(.system(size: 30))
-                                .frame(width: 50, height: 50)
-                                .background(
-                                    Circle()
-                                        .fill(Color(hex: customMood.color).opacity(0.2))
-                                )
+                            if let data = customMood.imageData, let uiImage = UIImage(data: data) {
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 50, height: 50)
+                                    .clipShape(Circle())
+                            } else {
+                                Text(customMood.emoji)
+                                    .font(.system(size: 30))
+                                    .frame(width: 50, height: 50)
+                                    .background(
+                                        Circle()
+                                            .fill(Color(hex: customMood.color).opacity(0.2))
+                                    )
+                            }
                         } else if let moodType = entry.moodType {
                             // Predefined mood display
                             SupabaseImageView(

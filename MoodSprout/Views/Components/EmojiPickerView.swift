@@ -59,11 +59,6 @@ struct MoodPickerView: View {
                             }
                         )
                         
-                        // Create Custom Mood Button
-                        CreateCustomMoodButton(
-                            showCustomMoodCreator: $showCustomMoodCreator,
-                            currentCustomMoodCount: currentCustomMoodCount
-                        )
                     }
                     .padding(.top)
                 }
@@ -214,13 +209,21 @@ struct CustomMoodButton: View {
     var body: some View {
         Button(action: onTap) {
             VStack(spacing: 8) {
-                Text(mood.emoji)
-                    .font(.system(size: 40))
-                    .frame(width: 60, height: 60)
-                    .background(
-                        Circle()
-                            .fill(Color(hex: mood.color).opacity(0.2))
-                    )
+                if let data = mood.imageData, let uiImage = UIImage(data: data) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 60, height: 60)
+                        .clipShape(Circle())
+                } else {
+                    Text(mood.emoji)
+                        .font(.system(size: 40))
+                        .frame(width: 60, height: 60)
+                        .background(
+                            Circle()
+                                .fill(Color(hex: mood.color).opacity(0.2))
+                        )
+                }
                 
                 Text(mood.name)
                     .font(.caption)
@@ -273,37 +276,6 @@ struct AddCustomMoodTile: View {
     }
 }
 
-// MARK: - Create Custom Mood Button
-struct CreateCustomMoodButton: View {
-    @Binding var showCustomMoodCreator: Bool
-    var currentCustomMoodCount: Int
-    
-    private let maxCustomMoods = 10
-    
-    var body: some View {
-        Button {
-            if currentCustomMoodCount < maxCustomMoods {
-                showCustomMoodCreator = true
-            }
-        } label: {
-            HStack {
-                Image(systemName: currentCustomMoodCount >= maxCustomMoods ? "exclamationmark.triangle.fill" : "plus.circle.fill")
-                Text(currentCustomMoodCount >= maxCustomMoods ? "Custom Mood Limit Reached (\(currentCustomMoodCount)/\(maxCustomMoods))" : "Create Custom Mood")
-                    .fontWeight(.medium)
-            }
-            .frame(maxWidth: .infinity)
-            .padding()
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(currentCustomMoodCount >= maxCustomMoods ? Color.orange.opacity(0.1) : Color.accentColor.opacity(0.1))
-            )
-            .foregroundStyle(currentCustomMoodCount >= maxCustomMoods ? Color.orange : Color.accentColor)
-        }
-        .disabled(currentCustomMoodCount >= maxCustomMoods)
-        .padding(.horizontal)
-        .padding(.bottom)
-    }
-}
 
 #Preview {
     MoodPickerView(

@@ -32,13 +32,15 @@ struct CustomMood: Identifiable, Codable, Equatable, Hashable {
     let emoji: String
     let color: String // Hex color string
     let createdAt: Date
+    let imageData: Data?
     
-    init(id: UUID = UUID(), name: String, emoji: String, color: String, createdAt: Date = Date()) {
+    init(id: UUID = UUID(), name: String, emoji: String, color: String, createdAt: Date = Date(), imageData: Data? = nil) {
         self.id = id
         self.name = name
         self.emoji = emoji
         self.color = color
         self.createdAt = createdAt
+        self.imageData = imageData
     }
 }
 

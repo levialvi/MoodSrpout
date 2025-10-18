@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct CustomMoodCreatorView: View {
     @Environment(\.dismiss) private var dismiss
@@ -13,6 +14,8 @@ struct CustomMoodCreatorView: View {
     @State private var selectedEmoji: String = "😊"
     @State private var selectedColor: Color = .blue
     @State private var showEmojiPicker: Bool = false
+    @State private var showImagePicker: Bool = false
+    @State private var pickedImage: UIImage?
     
     var onSave: (CustomMood) -> Void
     var currentCustomMoodCount: Int = 0
@@ -100,10 +103,27 @@ struct CustomMoodCreatorView: View {
                                     .font(.system(size: 40))
                             }
                         }
+                        Button {
+                            showImagePicker = true
+                        } label: {
+                            HStack {
+                                Text("Upload Image (optional)")
+                                Spacer()
+                                if let pickedImage {
+                                    Image(uiImage: pickedImage)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 50, height: 50)
+                                        .clipShape(Circle())
+                                } else {
+                                    Image(systemName: "photo.on.rectangle")
+                                }
+                            }
+                        }
                     } header: {
-                        Text("Emoji")
+                        Text("Emoji or Image")
                     } footer: {
-                        Text("Select an emoji that represents this mood")
+                        Text("Select an emoji or upload an image to represent this mood")
                     }
                     
                     Section {
@@ -139,13 +159,21 @@ struct CustomMoodCreatorView: View {
                     
                     Section {
                         VStack(spacing: 16) {
-                            Text(selectedEmoji)
-                                .font(.system(size: 60))
-                                .frame(width: 100, height: 100)
-                                .background(
-                                    Circle()
-                                        .fill(selectedColor.opacity(0.2))
-                                )
+                            if let pickedImage {
+                                Image(uiImage: pickedImage)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 100, height: 100)
+                                    .clipShape(Circle())
+                            } else {
+                                Text(selectedEmoji)
+                                    .font(.system(size: 60))
+                                    .frame(width: 100, height: 100)
+                                    .background(
+                                        Circle()
+                                            .fill(selectedColor.opacity(0.2))
+                                    )
+                            }
                             
                             Text(moodName.isEmpty ? "Preview" : moodName)
                                 .font(.headline)
@@ -177,15 +205,22 @@ struct CustomMoodCreatorView: View {
             .sheet(isPresented: $showEmojiPicker) {
                 EmojiPickerSheet(selectedEmoji: $selectedEmoji, availableEmojis: availableEmojis)
             }
+            .sheet(isPresented: $showImagePicker) {
+                ImagePicker(allowsEditing: true) { image in
+                    pickedImage = image
+                }
+            }
         }
     }
     
     private func saveCustomMood() {
         let colorHex = selectedColor.toHex()
+        let imageData = pickedImage?.jpegData(compressionQuality: 0.9)
         let customMood = CustomMood(
             name: moodName,
             emoji: selectedEmoji,
-            color: colorHex
+            color: colorHex,
+            imageData: imageData
         )
         onSave(customMood)
         dismiss()
