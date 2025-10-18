@@ -19,68 +19,111 @@ struct NotesEditorView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 20) {
-                // Header with mood info
-                VStack(spacing: 12) {
-                    if let customMoodId = customMoodId,
-                       let customMood = moodService.getCustomMood(by: customMoodId) {
-                        // Custom mood display
-                        if let data = customMood.imageData, let uiImage = UIImage(data: data) {
-                            Image(uiImage: uiImage)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 60, height: 60)
-                                .clipShape(Circle())
-                        } else {
-                            Text(customMood.emoji)
-                                .font(.system(size: 40))
-                                .frame(width: 60, height: 60)
-                                .background(
-                                    Circle()
-                                        .fill(Color(hex: customMood.color).opacity(0.2))
-                                )
+            ZStack {
+                Color.plantBackground.ignoresSafeArea()
+                
+                VStack(spacing: 32) {
+                    // Header with mood info
+                    VStack(spacing: 24) {
+                        HStack {
+                            Image(systemName: "note.text")
+                                .font(.system(size: 24))
+                                .foregroundColor(.plantGreen)
+                            Text("Add Notes")
+                                .font(.plantHeadline)
+                                .foregroundColor(.plantGreen)
+                            Spacer()
                         }
-                        Text("Add notes for \(customMood.name)")
-                            .font(.headline)
-                            .foregroundStyle(Color(hex: customMood.color))
-                    } else if let moodType = moodType {
-                        // Predefined mood display
-                        Text("😊")
-                            .font(.system(size: 40))
-                            .frame(width: 60, height: 60)
-                            .background(
-                                Circle()
-                                    .fill(Color.accentColor.opacity(0.2))
-                            )
-                        Text("Add notes for \(moodType.displayName)")
-                            .font(.headline)
+                        
+                        VStack(spacing: 16) {
+                            if let customMoodId = customMoodId,
+                               let customMood = moodService.getCustomMood(by: customMoodId) {
+                                // Custom mood display
+                                if let data = customMood.imageData, let uiImage = UIImage(data: data) {
+                                    Image(uiImage: uiImage)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 80, height: 80)
+                                        .clipShape(Circle())
+                                        .overlay(
+                                            Circle()
+                                                .stroke(Color(hex: customMood.color).opacity(0.3), lineWidth: 3)
+                                        )
+                                } else {
+                                    Text(customMood.emoji)
+                                        .font(.system(size: 50))
+                                        .frame(width: 80, height: 80)
+                                        .background(
+                                            Circle()
+                                                .fill(Color(hex: customMood.color).opacity(0.15))
+                                                .overlay(
+                                                    Circle()
+                                                        .stroke(Color(hex: customMood.color).opacity(0.3), lineWidth: 3)
+                                                )
+                                        )
+                                }
+                                Text("Add notes for \(customMood.name)")
+                                    .font(.plantSubheadline)
+                                    .fontWeight(.semibold)
+                                    .foregroundStyle(Color(hex: customMood.color))
+                            } else if let moodType = moodType {
+                                // Predefined mood display
+                                Text("😊")
+                                    .font(.system(size: 50))
+                                    .frame(width: 80, height: 80)
+                                    .background(
+                                        Circle()
+                                            .fill(.plantGreen.opacity(0.15))
+                                            .overlay(
+                                                Circle()
+                                                    .stroke(.plantGreen.opacity(0.3), lineWidth: 3)
+                                            )
+                                    )
+                                Text("Add notes for \(moodType.displayName)")
+                                    .font(.plantSubheadline)
+                                    .fontWeight(.semibold)
+                                    .foregroundStyle(.plantGreen)
+                            }
+                        }
                     }
-                }
-                .padding(.top)
-                
-                // Notes input
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Notes")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                        .foregroundStyle(.secondary)
+                    .padding(24)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(.plantSurface)
+                            .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
+                    )
                     
-                    TextEditor(text: $notesText)
-                        .frame(minHeight: 120)
-                        .padding(12)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.gray.opacity(0.1))
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                        )
+                    // Notes input
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack {
+                            Image(systemName: "pencil")
+                                .font(.system(size: 18))
+                                .foregroundColor(.plantGreen)
+                            Text("Your Notes")
+                                .font(.plantSubheadline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.plantGreen)
+                            Spacer()
+                        }
+                        
+                        TextEditor(text: $notesText)
+                            .frame(minHeight: 140)
+                            .padding(16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(.plantBackground)
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(.plantGreen.opacity(0.2), lineWidth: 1)
+                            )
+                            .font(.plantBody)
+                    }
+                    
+                    Spacer()
                 }
-                
-                Spacer()
+                .padding(16)
             }
-            .padding()
             .navigationTitle("Add Notes")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -88,6 +131,7 @@ struct NotesEditorView: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .foregroundColor(.plantGreen)
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
@@ -96,7 +140,15 @@ struct NotesEditorView: View {
                         onSave(finalNotes.isEmpty ? nil : finalNotes)
                         dismiss()
                     }
+                    .font(.plantBody)
                     .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(.plantGreen)
+                    )
                 }
             }
         }
